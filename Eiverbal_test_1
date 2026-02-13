@@ -196,3 +196,6 @@ raw_datasets = DatasetDict({
     "validation": Dataset.from_dict(dataset["validation"]),
     "test": Dataset.from_dict(dataset["test"])
 })
+conda create -n bert_idioms python=3.10
+conda activate bert_idioms
+
