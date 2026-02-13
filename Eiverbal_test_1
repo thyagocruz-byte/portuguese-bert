@@ -1,0 +1,129 @@
+pip install transformers datasets torch evaluate scikit-learn
+import transformers
+print(transformers.__version__)  # Deve ser 4.0 ou superior
+Ele      O
+chutou   B-IDIOM
+o        I-IDIOM
+balde    I-IDIOM
+ontem    O
+{
+  "train": [
+    {
+      "tokens": ["Ele", "chutou", "o", "balde", "ontem"],
+      "labels": ["O", "B-IDIOM", "I-IDIOM", "I-IDIOM", "O"]
+    },
+    {
+      "tokens": ["Maria", "ficou", "de", "olho", "na", "vaga"],
+      "labels": ["O", "O", "B-IDIOM", "I-IDIOM", "I-IDIOM", "O"]
+    },
+    {
+      "tokens": ["João", "meteu", "o", "pé", "na", "estrada"],
+      "labels": ["O", "B-IDIOM", "I-IDIOM", "I-IDIOM", "I-IDIOM", "O"]
+    },
+    {
+      "tokens": ["Eles", "lavaram", "as", "mãos", "sobre", "o", "caso"],
+      "labels": ["O", "B-IDIOM", "I-IDIOM", "I-IDIOM", "O", "O", "O"]
+    },
+    {
+      "tokens": ["Você", "está", "fazendo", "tempestade", "em", "copo", "d'água"],
+      "labels": ["O", "O", "B-IDIOM", "I-IDIOM", "I-IDIOM", "I-IDIOM", "I-IDIOM"]
+    },
+    {
+      "tokens": ["Pedro", "bateu", "as", "botas"],
+      "labels": ["O", "B-IDIOM", "I-IDIOM", "I-IDIOM"]
+    },
+    {
+      "tokens": ["Ela", "segurou", "vela", "na", "festa"],
+      "labels": ["O", "B-IDIOM", "I-IDIOM", "O", "O"]
+    },
+    {
+      "tokens": ["O", "time", "pisou", "na", "bola"],
+      "labels": ["O", "O", "B-IDIOM", "I-IDIOM", "I-IDIOM"]
+    },
+    {
+      "tokens": ["Ele", "pagou", "o", "pato"],
+      "labels": ["O", "B-IDIOM", "I-IDIOM", "I-IDIOM"]
+    },
+    {
+      "tokens": ["Estamos", "com", "a", "corda", "no", "pescoço"],
+      "labels": ["O", "O", "O", "B-IDIOM", "I-IDIOM", "I-IDIOM"]
+    },
+    {
+      "tokens": ["Ana", "deu", "com", "a", "língua", "nos", "dentes"],
+      "labels": ["O", "B-IDIOM", "I-IDIOM", "I-IDIOM", "I-IDIOM", "I-IDIOM", "I-IDIOM"]
+    },
+    {
+      "tokens": ["Ele", "ficou", "a", "ver", "navios"],
+      "labels": ["O", "O", "B-IDIOM", "I-IDIOM", "I-IDIOM"]
+    },
+    {
+      "tokens": ["Ela", "tem", "jogo", "de", "cintura"],
+      "labels": ["O", "O", "B-IDIOM", "I-IDIOM", "I-IDIOM"]
+    },
+    {
+      "tokens": ["O", "chefe", "virou", "a", "casaca"],
+      "labels": ["O", "O", "B-IDIOM", "I-IDIOM", "I-IDIOM"]
+    },
+    {
+      "tokens": ["Eles", "compraram", "gato", "por", "lebre"],
+      "labels": ["O", "O", "B-IDIOM", "I-IDIOM", "I-IDIOM"]
+    },
+    {
+      "tokens": ["Pare", "de", "encher", "linguiça"],
+      "labels": ["O", "O", "B-IDIOM", "I-IDIOM"]
+    }
+  ],
+  "validation": [
+    {
+      "tokens": ["Ele", "não", "moveu", "uma", "palha"],
+      "labels": ["O", "O", "B-IDIOM", "I-IDIOM", "I-IDIOM"]
+    },
+    {
+      "tokens": ["Ela", "bateu", "o", "martelo"],
+      "labels": ["O", "B-IDIOM", "I-IDIOM", "I-IDIOM"]
+    }
+  ],
+  "test": [
+    {
+      "tokens": ["O", "plano", "foi", "por", "água", "abaixo"],
+      "labels": ["O", "O", "O", "B-IDIOM", "I-IDIOM", "I-IDIOM"]
+    },
+    {
+      "tokens": ["Ele", "tirou", "o", "corpo", "fora"],
+      "labels": ["O", "B-IDIOM", "I-IDIOM", "I-IDIOM", "I-IDIOM"]
+    }
+  ]
+}
+from transformers import BertForSequenceClassification, BertTokenizer, Trainer, TrainingArguments
+
+# 1. Carrega o modelo e o tokenizador
+model_name = "bert-base-uncased"
+model = BertForSequenceClassification.from_pretrained(model_name)
+tokenizer = BertTokenizer.from_pretrained(model_name)
+
+# 2. Configura os argumentos de salvamento (AQUI ESTÁ O SEGREDO)
+training_args = TrainingArguments(
+    output_dir="./meus_checkpoints",   # Onde as etapas serão salvas
+    num_train_epochs=3,               # Quantas vezes passará pelos dados
+    per_device_train_batch_size=8,    # Ajuste conforme sua GPU (8 ou 16 é comum)
+    save_strategy="epoch",            # Salva ao final de cada época
+    save_total_limit=2,               # Mantém apenas as 2 últimas etapas no HD
+    fp16=True,                        # Deixa o treino mais rápido em GPUs modernas
+    logging_steps=100,
+)
+
+# 3. Inicializa o Trainer
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=seu_dataset_tokenizado, # Substitua pelo seu dataset
+    eval_dataset=seu_dataset_validacao,   # Substitua pelo seu dataset
+)
+
+# 4. DISPARA O TREINAMENTO
+trainer.train()
+
+# 5. Salva o resultado final "limpo"
+trainer.save_model("./modelo_final_pronto")
+
+
