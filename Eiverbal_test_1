@@ -125,5 +125,64 @@ trainer.train()
 
 # 5. Salva o resultado final "limpo"
 trainer.save_model("./modelo_final_pronto")
+import random
+import json
+
+idioms = [
+    ["chutar o balde"],
+    ["meter o pé na jaca"],
+    ["pagar o pato"],
+    ["lavar as mãos"],
+    ["ficar a ver navios"],
+    ["comprar gato por lebre"],
+    ["pisar na bola"],
+    ["segurar vela"],
+    ["encher linguiça"],
+    ["bater o martelo"]
+]
+
+subjects = ["Ele", "Ela", "João", "Maria", "O professor", "O aluno"]
+extras = ["ontem", "na reunião", "sem pensar", "rapidamente", "de novo"]
+
+def tokenize(sentence):
+    return sentence.split()
+
+def label(tokens, idiom_tokens):
+    labels = ["O"] * len(tokens)
+    for i in range(len(tokens)):
+        if tokens[i:i+len(idiom_tokens)] == idiom_tokens:
+            labels[i] = "B-IDIOM"
+            for j in range(1, len(idiom_tokens)):
+                labels[i+j] = "I-IDIOM"
+    return labels
+
+dataset = []
+
+for _ in range(1000):
+    subject = random.choice(subjects)
+    idiom = random.choice(idioms)[0]
+    extra = random.choice(extras)
+
+    sentence = f"{subject} {idiom} {extra}"
+    tokens = tokenize(sentence)
+    labels = label(tokens, idiom.split())
+
+    dataset.append({
+        "tokens": tokens,
+        "labels": labels
+    })
+
+random.shuffle(dataset)
+
+train = dataset[:800]
+val = dataset[800:900]
+test = dataset[900:]
+
+with open("idiom_dataset.json", "w") as f:
+    json.dump({
+        "train": train,
+        "validation": val,
+        "test": test
+    }, f, ensure_ascii=False, indent=2)
 
 
